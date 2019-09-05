@@ -267,7 +267,7 @@ summarysj
 ```
 
 Visualize the table
-```{r}
+```{r, message = F}
 ggplot(data=summarysj, aes(x=year))+
   geom_line(y=summarysj$prop.hispanic, color="green")+
   geom_line(y=summarysj$prop.black, color="red")+
