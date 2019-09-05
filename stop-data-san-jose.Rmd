@@ -1,0 +1,299 @@
+---
+title: "Lab 2 - Data Exploration"
+
+output:
+  html_document:
+    theme: lumen
+    toc: yes
+    toc_float: yes
+    df_print: kable
+    css: lab.css
+---
+
+# Getting Set up
+
+Go ahead and launch the R Studio Server, and open a new R Markdown file. Recall, to do this:
+
+*  click on the little green plus on the upper left hand of the window
+*  select R Markdown, as in the image below. 
+
+
+![](figures/how.to.open.rmd.png){width=200px}
+
+<br> 
+
+Once you have opened the document:
+
+*  change the title at the top to "Lab 2 - Data Exploration". Be sure to keep the quotation marks. 
+*  add an author line, following the example below. You need quotation marks!
+*  delete any extra code 
+
+![](figures/set.up.png){width=100%}
+
+<br> 
+
+Finally, save your new document:
+
+-  File > Save As
+-  set the file name as `lab_02_lastname_firstname`
+
+<br> 
+
+You will hand in a **knitted html file** as your problem set. It is OK if your lab report includes the example code from the lab, as well as your Exercises. Just be sure to **make a header to label each Exercise**. Please type your code to answer the questions in a code chunk (gray part), under the exercise headers and type (**BRIEF**) answers to any interpretation questions in the white part under the headers. 
+
+### R Packages
+
+R Packages are like apps on your cell phone - they are tools for accomplishing common tasks. R is an open-source programming language, meaning that people can contribute packages that make our lives easier, and we can use them for free.  For this problem set we will use the following R packages:
+
+- `dplyr`: for data wrangling
+- `ggplot2`: for data visualization
+
+These packages are already installed for you in this `project`. **Every time** you open a new R session you need to **load (open)** any packages you want to use. We do this with the `library` function.  Copy, paste and run the following in a code chunk (see the figure above if you forget how to insert a code chunk). 
+
+```{r message=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+Remember, "running code means" telling R "do this". You tell R to do something by passing it through the console. You can run existing code many ways:
+
+- re-typing code out directly in the console (most laborious method)
+- copying and pasting existing code into the console and hitting enter (easier method)
+- click on the green triangle in the code chunk (easiest method 1)
+- highlight the code and hit `Control-Enter` on PC or `Command-Return` on a Mac (easiest method 2)
+
+### Load Data from Files 
+Today we will practice data visualization using data on police stops in San Jose from 2013 to 2018.
+Copy, paste and run the code below to load the data. 
+
+```{r}
+sanjose <- readRDS("tr137st9964_ca_san_jose_2019_02_25.rds")
+```
+
+The data set that shows up in your Environment is a large **data frame**. Each observation or **case** is a police stop. 
+
+1.  Where did this data file come from?  How do you know?
+
+
+# How to look at data in R
+
+### Take a glimpse
+
+You can see the dimensions of this data frame (# of rows and columns), the names of the variables, the variable types, and the first few observations using the `glimpse` function. Copy, paste, and run the following in a new code chunk. 
+
+```{r eval=F}
+glimpse(sanjose)
+```
+
+We can see that there are 158,935 observations and 17 variables in this data set. The variable names are `date`, `time`, `location`, etc. This output also tells us that some variables are numbers...some might be integers `<int>`, others are numbers with decimals  `<dbl>`.  Some of the variables are factors `<fct>`. It is a good practice to see if R is treating variables as factors `<fct>`; as numbers `<int>` or `<dbl>` (basically numbers with decimals); or as characters (i.e. text) `<chr>`. 
+
+2. What type of variable is R considering the variable `subject_race` to be? What variable type is `search_conducted`? (answer with text)
+
+### The data viewer
+
+You can view the data by clicking on the name `sanjose` in the *Environment* pane (upper right window). This will bring up an alternative display of the data set in the *Data Viewer* (upper left window). R has stored these data in a kind of spreadsheet called a *data frame*. Each row represents a  different police stop: the first entry or column in each row is simply the row number, the rest are the different variables that were recorded for each stop. You can close the data viewer by clicking on the `x` in the upper left hand corner.
+
+
+<div id="license">
+It is a good idea to try kitting your document from time to time as you go along! Go ahead, and make sure your document is knitting, and that your html file includes Exercise headers, text, and code. Note that knitting automatically saves your Rmd file too!
+</div>
+
+# Initial Data Exploration
+
+An intial question might be what is the demographic breakdown of police stops.  This question can be 
+answered numerical and graphically.  
+
+### Creating Tables
+
+Numerically, we can show the results in a **table**.
+The `table()` function requires an input of the **variable** that to be tabulated.   
+
+This is the command to have R compute the number of police stops broken down by `subject_race` for the entire `sanjose` data frame.
+```{r}
+table(sanjose$subject_race)
+```
+
+If we prefer to see this summary as proportions of the total we can **nest** the table function inside the `prop.table()` function.
+
+```{r}
+prop.table(table(sanjose$subject_race))
+```
+
+If you want to see fewer decimal places you can round the entire `prop.table` using the `round` function.
+```{r}
+round(prop.table(table(sanjose$subject_race)),2)
+```
+
+
+3.  Explain a reason why one might prefer the `prop.table` over the `table` and vice-versa.
+
+
+### Visualizing Tables
+
+The visual representation of a table is bar graph or `geom_bar` in **R**.  Note that in a bar graph, the x variable needs to be a `<fct>` and is inputed as an `aes`thetic of the `ggplot`. **R** calculates the totals for each of the levels of the factor.
+
+```{r}
+ggplot(sanjose, aes(x=subject_race))+
+  geom_bar()+
+    geom_text(stat="count", aes(label=..count.., y=..count..+2000))  # adds labels above bars
+```
+
+If you prefer to see the proportions, you'll need to add `y= ..prop.., group=1` to `ggplot`'s  `aes`thetic
+
+```{r}
+ggplot(sanjose, aes(x=subject_race, y= ..prop.., group=1))+
+  geom_bar()+
+    geom_text(stat="count", aes(label=round(..prop.., 2), y=..prop..+ 0.02))  ##adds labels
+```
+
+
+4.  How does this breakdown compare to San Jose's population demographics? (see `README.md` file)
+
+# First deeper dig into the data
+
+A natural next question is; what proportion of stops result in the search being conducted?
+
+5.  Create a table that answers, *What proportions of all police stops results in a search being conducted?* 
+
+A follow-up question would be, do all races get searched at the same rate?  
+
+We can answer that by creating a contigency table with 2 factors `subject_race` and `search_conducted` to calculate the number of stops that a search was or was not conducted broken down by race.
+
+## Contigency Tables (aka two-way tables) 
+```{r}
+table(sanjose$subject_race, sanjose$search_conducted)
+```
+
+The `prop.table` function is a little more complicated with 2 factors.  Let's look at three variations to learn about the complication.
+
+### Variation #1
+
+```{r}
+prop.table(table(sanjose$subject_race, sanjose$search_conducted))
+```
+
+### Variation #2
+```{r}
+prop.table(table(sanjose$subject_race, sanjose$search_conducted),1)
+```
+
+### Variation #3
+```{r}
+prop.table(table(sanjose$subject_race, sanjose$search_conducted),2)
+```
+
+6.  What's going on?  Which one seems to generate values that make sense for this context?   Why?
+
+
+## Visualizations of contigency tables with `geom_bar`
+
+To create the bar graph the x variable is the explanatory variable and the different levels of the response variable is used to create the heights of each bar.  Bar graphs can be made with at least  three different .
+
+### Default Bar Graph - Stacked Bar Graph
+```{r}
+ggplot(sanjose, aes(x=subject_race, fill=search_conducted))+
+  geom_bar()
+```
+
+### Grouped Bar Graph aka `dodge`d Bar Graph
+```{r}
+ggplot(sanjose, aes(x=subject_race, fill=search_conducted))+
+  geom_bar(position="dodge")
+```
+
+### Percent Stacked Bar Graph
+```{r}
+ggplot(sanjose, aes(x=subject_race, fill=search_conducted))+
+  geom_bar(position="fill")
+```
+
+7.  What do you notice from these tables and graphs in our **first deeper dig into the data**?
+
+
+# Your own deeper dig into the data
+
+8.  In the previous example, I looked at the how different races varied in how often they were searched during a police stop.  Your assignment is to select a different variable examine along with `subject_race` and report on what you discover.  I would like everyone to try an analysis on your own - I think this is where you can have some fun and really develop your skills.  You analysis should include at least a table and a graph with discussion of your observations.
+
+# Extras
+
+## Advanced treatment, filtering the data frame and then analysizing
+```{r}
+sanjose_ped <- sanjose %>% 
+  filter(type=="pedestrian")
+
+ggplot(data=sanjose_ped, aes(x=subject_race, fill=outcome))+
+  geom_bar(position="dodge")
+```
+
+```{r}
+prop.table(table(sanjose_ped$subject_race,sanjose_ped$outcome, useNA="ifany"),1)
+```
+
+## Advanced Treatment, analysizing yearly data
+
+Analysis if their are any trends (time dependent) in the data
+
+Use `lubridate` package
+
+```{r, message=FALSE}
+library(lubridate)
+```
+
+Create a new variable `year` for both data frames
+
+```{r}
+sanjose <- sanjose %>% 
+  mutate(year = year(date))
+
+sanjose_ped <- sanjose_ped %>% 
+  mutate(year = year(date))
+```
+
+How has the number of police stops per year changed? (note data for 2013 and 2018 is incomplete)
+
+```{r}
+table(sanjose$year, sanjose$type)
+```
+
+How has the racial breakdown of all police stops changed over the past 5 years?
+```{r}
+summarysj <-sanjose %>% 
+  group_by(year) %>% 
+  summarize(prop.hispanic=round(length(which(subject_race=="hispanic"))/n(),2), 
+            prop.black =round(length(which(subject_race=="black"))/n(),2),
+            prop.asian=round(length(which(subject_race=="asian/pacific islander"))/n(),2),
+            prop.white=round(length(which(subject_race=="white"))/n(),2))
+summarysj
+```
+
+Visualize the table
+```{r}
+ggplot(data=summarysj, aes(x=year))+
+  geom_line(y=summarysj$prop.hispanic, color="green")+
+  geom_line(y=summarysj$prop.black, color="red")+
+  geom_line(y=summarysj$prop.asian, color="blue")+
+  geom_line(y=summarysj$prop.white, color="yellow")
+```
+
+
+Now let's just focus our just police stops of **hispanic**
+
+```{r}
+sanjose %>% 
+  filter(subject_race == "hispanic") %>% 
+  group_by(year) %>% 
+  summarize(count=n(), prop_search =round(length(which(search_conducted=="TRUE"))/n(),2))
+```
+# Turning in your work
+
+Submit your problem set **html** file on Canvas. This involves downloading the html file **from the R Studio Server to your personal computer**. The steps to do this are as follows: 
+
+- Make sure you **knit a final copy with all your changes** and work
+- Look at your final html file to make sure it contains the work you expect, and is formatted properly (e.g. Exercise headers, each with answers)
+- Go to your Files pane
+- Check the little box in front of the **html** file
+- Click the little blue gear labeled **More** just a little to the upper right
+- Click export > Download
+- Submit the file to Canvas
+
+
