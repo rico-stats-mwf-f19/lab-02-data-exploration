@@ -1,0 +1,40 @@
+---
+title: "Lab 2 - Data Exploration"
+name: "Jose Rico"
+output:
+  html_document:
+    theme: lumen
+    toc: yes
+    toc_float: yes
+    df_print: kable
+    css: lab.css
+---
+
+ 
+1. Where did this data file come from?  How do you know?
+
+
+2. What type of variable is R considering the variable `subject_race` to be? What variable type is `search_conducted`? (answer with text)
+
+ 
+3.  Explain a reason why one might prefer the `prop.table` over the `table` and vice-versa.
+
+
+4.  How does this breakdown compare to San Jose's population demographics? (see `README.md` file)
+
+# 5
+5.  Create a table that answers, *What proportions of all police stops results in a search being conducted?* 
+
+
+6.  What's going on?  Which one seems to generate values that make sense for this context?   Why?
+
+
+7.  What do you notice from these tables and graphs in our **first deeper dig into the data**?
+
+# 8
+8.  In the previous example, I looked at the how different races varied in how often they were searched during a police stop.  Your assignment is to select a different variable examine along with `subject_race` and report on what you discover.  I would like everyone to try an analysis on your own - I think this is where you can have some fun and really develop your skills.  You analysis should include at least a table and a graph with discussion of your observations.
+
+
+
+ 
+ 
